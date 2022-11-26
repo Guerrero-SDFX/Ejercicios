@@ -1,0 +1,110 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net.Http; //Esta es para poder trabajar con url
+using Newtonsoft.Json.Linq; //Esta libreria se usa para poder trabajar con Array JSON
+
+
+namespace Ejercicios_JMMG
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Ejercicio 1");
+            Console.WriteLine("Retornar toda la estructura");
+
+            using (var client = new HttpClient())  //Este metodo lo que hace es devolver todo el endpoint de los usuarios
+            {
+                string url = "https://jsonplaceholder.typicode.com/users";
+
+                client.DefaultRequestHeaders.Clear();
+
+                var response = client.GetAsync(url).Result;
+
+                var res = response.Content.ReadAsStringAsync().Result;
+
+                Console.WriteLine(res);
+            }
+
+            Console.WriteLine("Retornar solo un usuario");
+            using (var client = new HttpClient()) //En este solo se pide un ID, y buscará esa ID en el endpoint de usuarios
+            {
+                Console.WriteLine("Introduzca la ID que desea retornar: ");
+                String id="";
+                id = Console.ReadLine();
+                string url = "https://jsonplaceholder.typicode.com/users/"+id;
+
+                client.DefaultRequestHeaders.Clear();
+
+                var response = client.GetAsync(url).Result;
+
+                var res = response.Content.ReadAsStringAsync().Result;
+                dynamic r = JObject.Parse(res);
+
+                Console.WriteLine(r);
+            }
+
+            Console.ReadLine();
+            Console.WriteLine("\n\nEjercicio 2");
+            Console.WriteLine("Retornar el post");
+            using (var client = new HttpClient()) //En este solo se pide un ID, y buscará esa ID en el endpoint de posts
+            {
+                Console.WriteLine("Introduzca la ID que desea retornar: ");
+                String id = "";
+                id = Console.ReadLine();
+
+                string url = "https://jsonplaceholder.typicode.com/posts/"+id;
+
+                client.DefaultRequestHeaders.Clear();
+
+                var response = client.GetAsync(url).Result;
+
+                var res = response.Content.ReadAsStringAsync().Result;
+                dynamic r = JObject.Parse(res);
+
+                Console.WriteLine(r);
+            }
+
+            Console.ReadLine();
+            Console.WriteLine("\n\nEjercicio 3");
+            Console.WriteLine("Retornar un usuario con sus respectivos post");
+            using (var client = new HttpClient()) //Aqui lo que se hace es introducir una ID y devolver el usuario con sus posts
+            {
+                Console.WriteLine("Introduzca la ID que desea retornar: ");
+                String id = "";
+                id = Console.ReadLine();
+
+                string url = "https://jsonplaceholder.typicode.com/users/" + id;
+
+                client.DefaultRequestHeaders.Clear();
+
+                var response = client.GetAsync(url).Result;
+
+                var res = response.Content.ReadAsStringAsync().Result;
+                dynamic r = JObject.Parse(res);
+
+                Console.WriteLine(r);
+
+                Console.WriteLine("\"post\":[");
+
+                for (int i=1; i<=100 ; i++) //Este ciclo es para devolver todos los post, uno por uno
+                {
+                    string url2 = "https://jsonplaceholder.typicode.com/posts/"+i;
+                    var response2 = client.GetAsync(url2).Result;
+                    var res2 = response2.Content.ReadAsStringAsync().Result;
+                    dynamic r2 = JObject.Parse(res2);
+                    String userId = $"{r2["userId"]}";
+
+                    if(userId == id)  //Dentro de cada post se compara si el userID y el ID son los mismos, si lo son, el posts es retornado
+                    {
+                        Console.WriteLine(r2);
+                    }
+                }
+                Console.WriteLine("]");
+            }
+        }
+    }
+}
